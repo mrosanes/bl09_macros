@@ -3,6 +3,9 @@ import time
 import taurus
 from sardana.macroserver.macro import *
 #import matplotlib.pyplot as plt
+import fitlib
+
+
 
 @macro()
 def isblready(self):
@@ -172,6 +175,115 @@ class loopscan(Macro):
         #self.mvfe('close')
         #self.CloseValves()
 
+#*******************************************************************************
+#               Macros to aling the mirrors.
+#*******************************************************************************
+
+class M_mesh(object):
+    m1_pitch_name = 'm1_pitch'
+    m2_pitch_name = 'm2_pitch'
+    m1_z_name = 'm1_z'
+    m2_z_name = 'm2_z'
+
+    def run_scan(self, mirror, st_pitch, st_z, step_pitch, step_z, delta_z,
+                 intervals, int_time, repetitions):
+        """
+        :param mirror[str]: m1 or m2, to select which mirror will use it
+        :param st_pitch: start position
+        :param st_z: start position
+        :param step_pitch: steps between scans
+        :param step_z: steps between scans
+        :param delta_z: [st_z, end_z], position to use in dscan m_z st_z end_z
+        :param intervals: number of interval in the dscan
+        :param int_time: integration time
+        :param repetitions: number of scans
+        :return:
+        """
+
+        try:
+            chn = self.getEnv('MMeshChn')
+        except Exception as e:
+            msg = 'You must declare the MMeshChn in the environment with ' + \
+                'the name of the channel in the measurement group to ' + \
+                'to calculate the results.'
+            raise RuntimeError(msg)
+
+        # TODO verify the channel in the MntGrp
+
+        if mirror.lower() == 'm1':
+            m_pitch_name = self.m1_pitch_name
+            m_z_name = self.m1_z_name
+        elif mirror.lower() == 'm2':
+            m_pitch_name = self.m2_pitch_name
+            m_z_name = self.m2_z_name
+        else:
+            msg = 'Mirror should be m1 or m2. Passed value: %' % mirror
+            raise ValueError(msg)
+
+        m_pitch = self.getMoveable(self.m_pitch_name)
+        m_z = self.getMoveable(self.m_z_name)
+
+        try:
+            fit_obj = fitlib.GaussianFit()
+
+            results = [['ScanID', m_pitch_name, m_z_name, 'Intensity', 'FWHM']]
+            st_scan_id = int(self.getEnv('ScanID'))
+            self.execMacro('umv %s %s' %(m_pitch_name, st_pitch))
+            self.execMacro('umv %s %s' % (m_z_name, st_z))
+            pitch_pos = m_pitch.read_attribute('Position').value
+            dscan_macro, _ = self.createMacro('dscan', m_z, delta_z[0],
+                                              delta_z[1], intervals, int_time)
+            x_data, y_data = self._run_scan(dscan_macro, m_z_name, chn)
+            offset, slope, height, center, sigma, fwhm = fit_obj.fit(x_data,
+                                                                     y_data)
+            result = [st_scan_id, pitch_pos, center, height, fwhm]
+            results.append(result)
+            st_scan_id += 1
+            for i in range(repetitions)
+                self.execMacro('umvr %s %s' % (m_pitch_name, step_pitch))
+                self.execMacro('umvr %s %s' % (m_z_name, step_z))
+
+                x_data, y_data = self._run_scan(dscan_macro, m_z_name, chn)
+                offset, slope, height, center, sigma, fwhm = fit_obj.fit(x_data,
+                                                                         y_data)
+                result = [st_scan_id, pitch_pos, center, height, fwhm]
+                results.append(result)
+                st_scan_id += 1
+        except Exception as e:
+            self.error('There was an error: %s' % e)
+
+        finally:
+            self._save_data(results)
+
+    def _save_data(self, results):
+        for r in results:
+            msg = ''
+            for i in r:
+                msg += '%s/t' % i
+            self.info(msg)
+            # TODO save to file
+
+    def _run_scan(self, macro_obj, x_name, y_name):
+        self.runMacro(macro_obj)
+        x_data = []
+        y_data = []
+        for data in macro_obj.data:
+            x_data.append(data[x_name])
+            y_data.append(data[y_name])
+        return x_data, y_data
+
+
+
+class M1_mesh2(Macro, M_mesh):
+    def run(self):
+        self.run_scan('m1', -0.050, 0.615, -0.005, 0.08, [-0.14, 0.10], 90, 1,
+                      6)
+
+class M2_mesh2(Macro, M_mesh):
+    def run(self):
+        self.run_scan('m2', -0.035, 2.217, -0.005, 0.16, [-0.32, 0.32], 60, 0.5,
+                      4)
+
 @macro()
 def M1_mesh(self):
     #self.execMacro('dscan m1_z -0.09 0.08 70 1')
@@ -183,16 +295,6 @@ def M1_mesh(self):
         self.execMacro('dscan m1_z -0.13 0.11 90 1')
 
 @macro()
-def M1_mesh2(self):
-    self.execMacro('umv m1_pitch -0.050')
-    self.execMacro('umv m1_z 0.615')
-    self.execMacro('dscan m1_z -0.14 0.10 90 1')
-    for i in range(6):
-        self.execMacro('umvr m1_pitch -0.005')
-        self.execMacro('umvr m1_z 0.08')
-        self.execMacro('dscan m1_z -0.14 0.10 90 1')
-
-@macro()
 def M2_mesh(self):
     #self.execMacro('dscan m2_x -0.32 +0.33 60 1')
     self.execMacro('umvr m2_pitch 0.015')
@@ -202,15 +304,6 @@ def M2_mesh(self):
         self.execMacro('umvr m2_x 0.155')
         self.execMacro('dscan m2_x -0.32 +0.32 60 0.5')
 
-@macro()
-def M2_mesh2(self):
-    self.execMacro('umv m2_pitch -0.035')
-    self.execMacro('umv m2_x 2.217')
-    self.execMacro('dscan m2_x -0.32 +0.32 60 1')
-    for i in range(4):
-        self.execMacro('umvr m2_pitch -0.005')
-        self.execMacro('umvr m2_x 0.16')
-        self.execMacro('dscan m2_x -0.32 +0.32 60 0.5')
 
 @macro()
 def pencil_beam(self): #THIS MACRO SHOULD BE USED WITH SHUTTER OUT & E OFFSET=18 eV (HOPG)
