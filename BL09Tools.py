@@ -185,16 +185,14 @@ class M_mesh(object):
     m1_trans_name = 'm1_z'
     m2_trans_name = 'm2_x'
 
-    def run_scan(self, mirror, st_pitch, st_trans, step_pitch, step_trans,
-                 st_trans, end_trans, intervals, int_time, repetitions):
+    def run_scan(self, mirror, step_pitch, step_trans, st_trans_dscan, 
+                 end_trans_dscan, intervals, int_time, repetitions):
         """
         :param mirror[str]: m1 or m2, to select which mirror will use it
-        :param st_pitch: start position of the pitch motor
-        :param st_trans: start position of the translation motor (X or Z)
-        :param step_pitch: steps between scans
-        :param step_trans: steps between scans
-        :param st_trans: start position to use in dscan
-        :param end_trans: end position to use in dscan
+        :param step_pitch: step between scans in pitch
+        :param step_trans: step between scans in translation
+        :param st_trans_dscan: start position to use in dscan for translation
+        :param end_trans_dscan: end position to use in dscan for translation
         :param intervals: number of interval in the dscan
         :param int_time: integration time
         :param repetitions: number of scans
@@ -226,20 +224,18 @@ class M_mesh(object):
         self.m_trans = self.getMoveable(m_trans_name)
         self.fit_obj = fitlib.GaussianFit()
         self.dscan_macro, _ = self.createMacro('dscan', self.m_trans,
-                                               st_trans, end_trans,
+                                               st_trans_dscan, end_trans_dscan,
                                                intervals, int_time)
 
         results = [['ScanID', m_pitch_name, m_trans_name, 'Intensity', 'FWHM']]
 
         try:
-            res = self.get_result('umvr', m_trans_name, chn, st_pitch,
-                                  step_trans)
-            results.append(res)
-            first_scan_id = res[0]
             for i in range(repetitions):
-               res = self.get_result('umv', m_trans_name, chn, st_pitch,
-                                     step_trans)
-               results.append(res)
+                if i == 0:
+                    first_scan_id = res[0]     
+                res = self.get_result('umvr', m_trans_name, chn, step_pitch,
+                                      step_trans)
+                results.append(res)
             last_scan_id = res[0]
 
         except Exception as e:
@@ -259,13 +255,13 @@ class M_mesh(object):
                     self.output(line)
                     f.write(line)
 
-    def get_result(self, cmd_mv, x_name, y_name, step_pitch, step_trans):
+    def get_result(self, x_name, y_name, step_pitch, step_trans):
         st_scan_id = self.getEnv('ScanID')
-        # Move to the start position of the m#_pitch
-        cmd_macro = '%s %s %s' % (cmd_mv, self.m_pitch.getName(), step_pitch)
+        # Move the m#_pitch to scan start position 
+        cmd_macro = 'umvr %s %s' % (self.m_pitch.getName(), step_pitch)
         self.execMacro(cmd_macro)
-        # Move to the start position of the m#_trans
-        cmd_macro = '%s %s %s' % (cmd_mv, self.m_trans.getName(), step_trans)
+        # Move the m#_trans to scan start position 
+        cmd_macro = 'umvr %s %s' % (self.m_trans.getName(), step_trans)
         self.execMacro(cmd_macro)
 
         pitch_pos = self.m_pitch.read_attribute('Position').value
@@ -282,36 +278,32 @@ class M_mesh(object):
         return result
 
 
+class M1_mesh(Macro, M_mesh):
+    def run(self):
+        self.execMacro('umvr m1_pitch 0.015')
+        self.execMacro('umvr m1_z -0.240')
+        self.run_scan('m1', -0.005, 0.08, -0.14, 0.10, 90, 1, 3)
+
 
 class M1_mesh2(Macro, M_mesh):
     def run(self):
-        self.run_scan('m1', -0.050, 0.615, -0.005, 0.08, -0.14, 0.10, 90, 1,
-                      6)
+        self.execMacro('umv m1_pitch -0.055')
+        self.execMacro('umv m1_z 0.697')
+        self.run_scan('m1', -0.005, 0.08, -0.14, 0.10, 90, 1, 3)
+
+
+class M2_mesh(Macro, M_mesh):
+    def run(self):
+        self.execMacro('umvr m2_pitch 0.010')
+        self.execMacro('umvr m2_x -0.32')
+        self.run_scan('m2', -0.005, 0.16, -0.32, 0.32, 60, 0.5, 3)
+
 
 class M2_mesh2(Macro, M_mesh):
     def run(self):
-        self.run_scan('m2', -0.035, 2.217, -0.005, 0.16, [-0.32, 0.32], 60, 0.5,
-                      4)
-
-@macro()
-def M1_mesh(self):
-    #self.execMacro('dscan m1_z -0.09 0.08 70 1')
-    self.execMacro('umvr m1_pitch 0.015')
-    self.execMacro('umvr m1_z -0.240')
-    for i in range(5):
-        self.execMacro('umvr m1_pitch -0.005')
-        self.execMacro('umvr m1_z 0.08')
-        self.execMacro('dscan m1_z -0.13 0.11 90 1')
-
-@macro()
-def M2_mesh(self):
-    #self.execMacro('dscan m2_x -0.32 +0.33 60 1')
-    self.execMacro('umvr m2_pitch 0.015')
-    self.execMacro('umvr m2_x -0.48')
-    for i in range(5):
-        self.execMacro('umvr m2_pitch -0.005')
-        self.execMacro('umvr m2_x 0.155')
-        self.execMacro('dscan m2_x -0.32 +0.32 60 0.5')
+        self.execMacro('umv m2_pitch -0.035')
+        self.execMacro('umv m2_x 2.217')
+        self.run_scan('m2', -0.005, 0.16, -0.32, 0.32, 60, 0.5, 3)
 
 
 @macro()
