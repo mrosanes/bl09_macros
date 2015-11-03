@@ -2,8 +2,8 @@ import PyTango
 import time
 import taurus
 from sardana.macroserver.macro import *
-#import matplotlib.pyplot as plt
 import fitlib
+#import matplotlib.pyplot as plt
 
 
 
@@ -182,18 +182,19 @@ class loopscan(Macro):
 class M_mesh(object):
     m1_pitch_name = 'm1_pitch'
     m2_pitch_name = 'm2_pitch'
-    m1_z_name = 'm1_z'
-    m2_z_name = 'm2_z'
+    m1_trans_name = 'm1_z'
+    m2_trans_name = 'm2_x'
 
-    def run_scan(self, mirror, st_pitch, st_z, step_pitch, step_z, delta_z,
-                 intervals, int_time, repetitions):
+    def run_scan(self, mirror, st_pitch, st_trans, step_pitch, step_trans,
+                 st_trans, end_trans, intervals, int_time, repetitions):
         """
         :param mirror[str]: m1 or m2, to select which mirror will use it
-        :param st_pitch: start position
-        :param st_z: start position
+        :param st_pitch: start position of the pitch motor
+        :param st_trans: start position of the translation motor (X or Z)
         :param step_pitch: steps between scans
-        :param step_z: steps between scans
-        :param delta_z: [st_z, end_z], position to use in dscan m_z st_z end_z
+        :param step_trans: steps between scans
+        :param st_trans: start position to use in dscan
+        :param end_trans: end position to use in dscan
         :param intervals: number of interval in the dscan
         :param int_time: integration time
         :param repetitions: number of scans
@@ -210,73 +211,81 @@ class M_mesh(object):
 
         # TODO verify the channel in the MntGrp
 
+        # Select motors between mirrors (1 or 2)
         if mirror.lower() == 'm1':
             m_pitch_name = self.m1_pitch_name
-            m_z_name = self.m1_z_name
+            m_trans_name = self.m1_trans_name
         elif mirror.lower() == 'm2':
             m_pitch_name = self.m2_pitch_name
-            m_z_name = self.m2_z_name
+            m_trans_name = self.m2_trans_name
         else:
             msg = 'Mirror should be m1 or m2. Passed value: %' % mirror
             raise ValueError(msg)
 
-        m_pitch = self.getMoveable(self.m_pitch_name)
-        m_z = self.getMoveable(self.m_z_name)
+        self.m_pitch = self.getMoveable(m_pitch_name)
+        self.m_trans = self.getMoveable(m_trans_name)
+        self.fit_obj = fitlib.GaussianFit()
+        self.dscan_macro, _ = self.createMacro('dscan', self.m_trans,
+                                               st_trans, end_trans,
+                                               intervals, int_time)
+
+        results = [['ScanID', m_pitch_name, m_trans_name, 'Intensity', 'FWHM']]
 
         try:
-            fit_obj = fitlib.GaussianFit()
+            res = self.get_result('umvr', m_trans_name, chn, st_pitch,
+                                  step_trans)
+            results.append(res)
+            first_scan_id = res[0]
+            for i in range(repetitions):
+               res = self.get_result('umv', m_trans_name, chn, st_pitch,
+                                     step_trans)
+               results.append(res)
+            last_scan_id = res[0]
 
-            results = [['ScanID', m_pitch_name, m_z_name, 'Intensity', 'FWHM']]
-            st_scan_id = int(self.getEnv('ScanID'))
-            self.execMacro('umv %s %s' %(m_pitch_name, st_pitch))
-            self.execMacro('umv %s %s' % (m_z_name, st_z))
-            pitch_pos = m_pitch.read_attribute('Position').value
-            dscan_macro, _ = self.createMacro('dscan', m_z, delta_z[0],
-                                              delta_z[1], intervals, int_time)
-            x_data, y_data = self._run_scan(dscan_macro, m_z_name, chn)
-            offset, slope, height, center, sigma, fwhm = fit_obj.fit(x_data,
-                                                                     y_data)
-            result = [st_scan_id, pitch_pos, center, height, fwhm]
-            results.append(result)
-            st_scan_id += 1
-            for i in range(repetitions)
-                self.execMacro('umvr %s %s' % (m_pitch_name, step_pitch))
-                self.execMacro('umvr %s %s' % (m_z_name, step_z))
-
-                x_data, y_data = self._run_scan(dscan_macro, m_z_name, chn)
-                offset, slope, height, center, sigma, fwhm = fit_obj.fit(x_data,
-                                                                         y_data)
-                result = [st_scan_id, pitch_pos, center, height, fwhm]
-                results.append(result)
-                st_scan_id += 1
         except Exception as e:
             self.error('There was an error: %s' % e)
 
         finally:
-            self._save_data(results)
+            # Save and show results for each scan
+            filename = 'fit_%s_%s.txt' % (first_scan_id, last_scan_id)
+            path = self.getEnv('ScanDir')
+            file_fullname = '%s/%s' %(path, filename)
+            with open(file_fullname, 'w') as f:
+                self.info('Saving report in: \n%s' % file_fullname)
+                for r in results:
+                    line = ''
+                    for i in r:
+                        line += '%s/t' % i
+                    self.output(line)
+                    f.write(line)
 
-    def _save_data(self, results):
-        for r in results:
-            msg = ''
-            for i in r:
-                msg += '%s/t' % i
-            self.info(msg)
-            # TODO save to file
+    def get_result(self, cmd_mv, x_name, y_name, step_pitch, step_trans):
+        st_scan_id = self.getEnv('ScanID')
+        # Move to the start position of the m#_pitch
+        cmd_macro = '%s %s %s' % (cmd_mv, self.m_pitch.getName(), step_pitch)
+        self.execMacro(cmd_macro)
+        # Move to the start position of the m#_trans
+        cmd_macro = '%s %s %s' % (cmd_mv, self.m_trans.getName(), step_trans)
+        self.execMacro(cmd_macro)
 
-    def _run_scan(self, macro_obj, x_name, y_name):
-        self.runMacro(macro_obj)
+        pitch_pos = self.m_pitch.read_attribute('Position').value
+
+        self.runMacro(self.dscan_macro)
         x_data = []
         y_data = []
-        for data in macro_obj.data:
+        for data in self.dscan_macro.data:
             x_data.append(data[x_name])
             y_data.append(data[y_name])
-        return x_data, y_data
+        offset, slope, height, center_x, sigma, fwhm = self.fit_obj.fit(x_data,
+                                                                        y_data)
+        result = [st_scan_id, pitch_pos, center_x, height, fwhm]
+        return result
 
 
 
 class M1_mesh2(Macro, M_mesh):
     def run(self):
-        self.run_scan('m1', -0.050, 0.615, -0.005, 0.08, [-0.14, 0.10], 90, 1,
+        self.run_scan('m1', -0.050, 0.615, -0.005, 0.08, -0.14, 0.10, 90, 1,
                       6)
 
 class M2_mesh2(Macro, M_mesh):
