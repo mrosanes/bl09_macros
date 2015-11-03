@@ -185,14 +185,14 @@ class M_mesh(object):
     m1_trans_name = 'm1_z'
     m2_trans_name = 'm2_x'
 
-    def run_scan(self, mirror, step_pitch, step_trans, st_trans_dscan, 
-                 end_trans_dscan, intervals, int_time, repetitions):
+    def run_scan(self, mirror, step_pitch, step_trans, start_dscan, end_dscan, 
+                 intervals, int_time, repetitions):
         """
         :param mirror[str]: m1 or m2, to select which mirror will use it
         :param step_pitch: step between scans in pitch
         :param step_trans: step between scans in translation
-        :param st_trans_dscan: start position to use in dscan for translation
-        :param end_trans_dscan: end position to use in dscan for translation
+        :param start_dscan: start position to use in dscan for translation
+        :param end_dscan: end position to use in dscan for translation
         :param intervals: number of interval in the dscan
         :param int_time: integration time
         :param repetitions: number of scans
@@ -223,18 +223,17 @@ class M_mesh(object):
         self.m_pitch = self.getMoveable(m_pitch_name)
         self.m_trans = self.getMoveable(m_trans_name)
         self.fit_obj = fitlib.GaussianFit()
-        self.dscan_macro, _ = self.createMacro('dscan', self.m_trans,
-                                               st_trans_dscan, end_trans_dscan,
-                                               intervals, int_time)
 
         results = [['ScanID', m_pitch_name, m_trans_name, 'Intensity', 'FWHM']]
-
         try:
             for i in range(repetitions):
+                self.dscan_macro, _ = self.createMacro('dscan', self.m_trans,
+                                                       start_dscan, end_dscan,
+                                                       intervals, int_time)
+
+                res = self.get_result(m_trans_name, chn, step_pitch, step_trans)
                 if i == 0:
-                    first_scan_id = res[0]     
-                res = self.get_result('umvr', m_trans_name, chn, step_pitch,
-                                      step_trans)
+                    first_scan_id = res[0]
                 results.append(res)
             last_scan_id = res[0]
 
@@ -251,9 +250,10 @@ class M_mesh(object):
                 for r in results:
                     line = ''
                     for i in r:
-                        line += '%s/t' % i
+                        line += '%s    ' % i
                     self.output(line)
                     f.write(line)
+                    f.write('\n')
 
     def get_result(self, x_name, y_name, step_pitch, step_trans):
         st_scan_id = self.getEnv('ScanID')
@@ -267,11 +267,13 @@ class M_mesh(object):
         pitch_pos = self.m_pitch.read_attribute('Position').value
 
         self.runMacro(self.dscan_macro)
-        x_data = []
-        y_data = []
-        for data in self.dscan_macro.data:
-            x_data.append(data[x_name])
-            y_data.append(data[y_name])
+        x_data = [None]*len(self.dscan_macro.data)
+        y_data = [None]*len(self.dscan_macro.data)
+
+        for i in range(len(self.dscan_macro.data)):
+            x_data[i]=self.dscan_macro.data[i].data[x_name]
+            y_data[i]=self.dscan_macro.data[i].data[y_name]
+
         offset, slope, height, center_x, sigma, fwhm = self.fit_obj.fit(x_data,
                                                                         y_data)
         result = [st_scan_id, pitch_pos, center_x, height, fwhm]
@@ -279,32 +281,71 @@ class M_mesh(object):
 
 
 class M1_mesh(Macro, M_mesh):
-    def run(self):
+    param_def = [["step_pitch", Type.Float, -0.005, "step between scans in pitch"],
+                 ["step_trans", Type.Float, 0.08, "step between scans in translation"],
+                 ["start_dscan", Type.Float, -0.14, "start dscan translation position"],
+                 ["end_dscan", Type.Float, 0.10, "end dscan translation position"],
+                 ["intervals", Type.Integer, 90, "number of interval in the dscan"],
+                 ["int_time", Type.Float, 1, "integration time"],
+                 ["repetitions", Type.Integer, 3, "number of scans"]]
+
+    def run(self, step_pitch, step_trans, start_dscan, end_dscan, intervals,
+            int_time, repetitions):
         self.execMacro('umvr m1_pitch 0.015')
         self.execMacro('umvr m1_z -0.240')
-        self.run_scan('m1', -0.005, 0.08, -0.14, 0.10, 90, 1, 3)
+        self.run_scan('m1', step_pitch, step_trans, start_dscan, end_dscan, 
+                      intervals, int_time, repetitions)
 
 
 class M1_mesh2(Macro, M_mesh):
-    def run(self):
+    param_def = [["step_pitch", Type.Float, -0.005, "step between scans in pitch"],
+                 ["step_trans", Type.Float, 0.08, "step between scans in translation"],
+                 ["start_dscan", Type.Float, -0.14, "start dscan translation position"],
+                 ["end_dscan", Type.Float, 0.10, "end dscan translation position"],
+                 ["intervals", Type.Integer, 90, "number of interval in the dscan"],
+                 ["int_time", Type.Float, 1, "integration time"],
+                 ["repetitions", Type.Integer, 3, "number of scans"]]
+
+    def run(self, step_pitch, step_trans, start_dscan, end_dscan, intervals,
+            int_time, repetitions):
         self.execMacro('umv m1_pitch -0.055')
         self.execMacro('umv m1_z 0.697')
-        self.run_scan('m1', -0.005, 0.08, -0.14, 0.10, 90, 1, 3)
+        self.run_scan('m1', step_pitch, step_trans, start_dscan, end_dscan, 
+                      intervals, int_time, repetitions)
 
 
 class M2_mesh(Macro, M_mesh):
-    def run(self):
+    param_def = [["step_pitch", Type.Float, -0.005, "step between scans in pitch"],
+                 ["step_trans", Type.Float, 0.16, "step between scans in translation"],
+                 ["start_dscan", Type.Float, -0.32, "start dscan translation position"],
+                 ["end_dscan", Type.Float, 0.32, "end dscan translation position"],
+                 ["intervals", Type.Integer, 60, "number of interval in the dscan"],
+                 ["int_time", Type.Float, 0.5, "integration time"],
+                 ["repetitions", Type.Integer, 3, "number of scans"]]
+
+    def run(self, step_pitch, step_trans, start_dscan, end_dscan, intervals,
+            int_time, repetitions):
         self.execMacro('umvr m2_pitch 0.010')
         self.execMacro('umvr m2_x -0.32')
-        self.run_scan('m2', -0.005, 0.16, -0.32, 0.32, 60, 0.5, 3)
+        self.run_scan('m2', step_pitch, step_trans, start_dscan, end_dscan, 
+                      intervals, int_time, repetitions)
 
 
 class M2_mesh2(Macro, M_mesh):
-    def run(self):
+    param_def = [["step_pitch", Type.Float, -0.005, "step between scans in pitch"],
+                 ["step_trans", Type.Float, 0.16, "step between scans in translation"],
+                 ["start_dscan", Type.Float, -0.32, "start dscan translation position"],
+                 ["end_dscan", Type.Float, 0.32, "end dscan translation position"],
+                 ["intervals", Type.Integer, 60, "number of interval in the dscan"],
+                 ["int_time", Type.Float, 0.5, "integration time"],
+                 ["repetitions", Type.Integer, 3, "number of scans"]]
+
+    def run(self, step_pitch, step_trans, start_dscan, end_dscan, intervals,
+            int_time, repetitions):
         self.execMacro('umv m2_pitch -0.035')
         self.execMacro('umv m2_x 2.217')
-        self.run_scan('m2', -0.005, 0.16, -0.32, 0.32, 60, 0.5, 3)
-
+        self.run_scan('m2', step_pitch, step_trans, start_dscan, end_dscan, 
+                      intervals, int_time, repetitions)
 
 @macro()
 def pencil_beam(self): #THIS MACRO SHOULD BE USED WITH SHUTTER OUT & E OFFSET=18 eV (HOPG)
