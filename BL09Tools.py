@@ -188,7 +188,7 @@ def M1_mesh(self):
 def M1_mesh2(self):
         self.execMacro('umv m1_pitch -0.050')
         self.execMacro('umv m1_z 0.615')
-	self.execMacro('dscan m1_z -0.14 0.10 90 1')
+        self.execMacro('dscan m1_z -0.14 0.10 90 1')
         for i in range(6):
                 self.execMacro('umvr m1_pitch -0.005')
                 self.execMacro('umvr m1_z 0.08')
@@ -206,9 +206,9 @@ def M2_mesh(self):
 
 @macro()
 def M2_mesh2(self):
-        self.execMacro('umv m2_pitch -0.035')
-        self.execMacro('umv m2_x 2.217')
-	self.execMacro('dscan m2_x -0.32 +0.32 60 1')
+        self.execMacro('umv m2_pitch -0.015')
+        self.execMacro('umv m2_x 1.336')
+        self.execMacro('dscan m2_x -0.32 +0.32 60 1')
         for i in range(4):
                 self.execMacro('umvr m2_pitch -0.005')
                 self.execMacro('umvr m2_x 0.16')
