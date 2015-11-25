@@ -47,7 +47,7 @@ def mvfe(self,action):
 def StatusTXMValve(self):
     for DevName in ['BL09/EH/PNV-05']:
     
-        DevState = taurus.Device(DevName).state()
+        DevState = taurus.Device(DevName).state() 
         self.output('Status of TXM Valve is %s' % (DevState))
 
 
