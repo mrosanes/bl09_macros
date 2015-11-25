@@ -353,14 +353,14 @@ class M2_mesh2(Macro):
                  ["step_trans", Type.Float, 0.16, "step between scans in translation"],
                  ["start_dscan", Type.Float, -0.32, "start dscan translation position"],
                  ["end_dscan", Type.Float, 0.32, "end dscan translation position"],
-                 ["intervals", Type.Integer, 60, "number of interval in the dscan"],
+                 ["intervals", Type.Integer, 30, "number of interval in the dscan"],
                  ["int_time", Type.Float, 0.5, "integration time"],
                  ["repetitions", Type.Integer, 4, "number of scans"]]
 
     def run(self, m_pitch, m_trans, step_pitch, step_trans, 
             start_dscan, end_dscan, intervals, int_time, repetitions):
-        self.execMacro('umv', m_pitch, '-0.015')
-        self.execMacro('umv', m_trans, '1.336')
+        self.execMacro('umv', m_pitch, '-0.055')
+        self.execMacro('umv', m_trans, '2.792')
         self.execMacro('dscan', m_trans, start_dscan, end_dscan, 
                        intervals, int_time)
         self.M_mesh(m_pitch, m_trans, step_pitch, step_trans, 
