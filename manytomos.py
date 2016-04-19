@@ -1,8 +1,8 @@
 from manytomos import ManyTomos
 from sardana.macroserver.macro import Macro, Type
 
-zone_plate_def = [['pos_zp', Type.Float, None, ('Position of the zone plane'
-                    ' motor')], {'min' : 1, 'max' : 3 }]
+zone_plate_def = [['pos_zp_z', Type.Float, None, ('Position of the zone plane'
+                    ' motor')], {'min' : 1, 'max' : 4 }]
 regions_def = [['start', Type.Float, None, 'Theta start position'],
                ['end', Type.Float, None, 'Theta end position'],
                ['exp_time', Type.Float, None, 'Exposure time'],
@@ -18,9 +18,9 @@ class manytomos(Macro):
                      ['pos_x', Type.Float, None, 'Position of the X motor'],
                      ['pos_y', Type.Float, None, 'Position of the Y motor'],
                      ['pos_z', Type.Float, None, 'Position of the Z motor'],
-                     ['zone_plate', zone_plate_def, None, ('Zone plates'
+                     ['ZP_Z', zone_plate_def, None, ('Zone plates'
                         'positions')],
-                     ['regions', regions_def, None, 'Regions'],
+                     ['sample_theta', regions_def, None, 'Regions of the theta motor'],
                      ['ff_pos_x', Type.Float, None, ('Position of the X motor'
                         ' for the flat field acquisition')],
                      ['ff_pos_y', Type.Float, None, ('Position of the Y motor'
