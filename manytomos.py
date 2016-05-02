@@ -3,9 +3,11 @@ from sardana.macroserver.macro import Macro, Type
 
 zone_plate_def = [['pos_zp_z', Type.Float, None, ('Position of the zone plane'
                     ' motor')], {'min' : 1, 'max' : 4 }]
+
 regions_def = [['start', Type.Float, None, 'Theta start position'],
                ['end', Type.Float, None, 'Theta end position'],
                ['exp_time', Type.Float, None, 'Exposure time'],
+               ['theta_step', Type.Integer, 1, 'Theta step'],
                 {'min' : 1, 'max' : 3 }]
 
 
