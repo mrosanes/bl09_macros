@@ -25,7 +25,7 @@ class manytomos(Macro):
                      ['ZP_Z', zone_plate_def, None, ('Zone plates'
                          ' positions')],
                      ['sample_theta', regions_def, None, ('Regions of the'
-                         ' theta motor'],
+                         ' theta motor')],
                      ['ff_pos_x', Type.Float, None, ('Position of the X motor'
                          ' for the flat field acquisition')],
                      ['ff_pos_y', Type.Float, None, ('Position of the Y motor'
