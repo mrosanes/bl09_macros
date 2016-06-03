@@ -1,5 +1,6 @@
 from manytomos import ManyTomos
 from sardana.macroserver.macro import Macro, Type
+from sardana.macroserver.msexception import UnknownEnv
 
 zone_plate_def = [['pos_zp_z', Type.Float, None, ('Position of the zone plane'
                     ' motor')], {'min' : 1, 'max' : 4 }]
@@ -22,18 +23,26 @@ class manytomosbase:
     measurements.
     """
 
-    def _verifySamples(self, samples):
+    def _verifySamples(self, samples, zp_limit_neg, zp_limit_pos):
         for sample in samples:
             # check the zone_plate value
             for counter, zone_plate in enumerate(sample[ZP_Z]):
-                if zone_plate < -11275.0 or zone_plate > -11200.0:
+                if zone_plate < zp_limit_neg or zone_plate > zp_limit_pos:
                     msg = ("The sample {0} has the zone_plate #{1} out of"
                            " range. The accepted range is from -11275.0 to"
                            " -11200.0 um.")
                     raise ValueError(msg.format(sample[NAME], counter))
 
     def run(self, samples, filename):
-#         self._verifySamples(samples)
+        try:
+            zp_limit_neg = self.getEnv("ZP_Z_limit_neg")
+        except UnknownEnv:
+            zp_limit_neg = float("-Inf")
+        try:
+            zp_limit_pos = self.getEnv("ZP_Z_limit_pos")
+        except UnknownEnv:
+            zp_limit_pos = float("Inf")
+        self._verifySamples(samples, zp_limit_neg, zp_limit_pos)
         manytomos = ManyTomos(samples, filename)
         manytomos.generate()
 
