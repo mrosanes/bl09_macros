@@ -115,6 +115,10 @@ def OpenValves(self):
         except:
             self.warning('Could not open %s' % a )
 
+@macro()
+def OpenFE(self):
+    self.execMacro('mvfe open')
+
 
 @macro()
 def CloseValves(self):
@@ -136,6 +140,9 @@ def CloseValves(self):
         except:
             self.warning('Could not close %s' % DevName )
 
+@macro()
+def CloseFE(self):
+    self.execMacro('mvfe close')
 
 
 class loopscan(Macro):
