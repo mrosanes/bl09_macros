@@ -2,13 +2,13 @@ from manytomos import ManyTomos
 from sardana.macroserver.macro import Macro, Type
 from sardana.macroserver.msexception import UnknownEnv
 
-zone_plate_def = [['ZP_Z', Type.Float, None, ('Position of the zone plane'
+zone_plate_def = [['ZP_central_pos', Type.Float, None, ('Position of the zone plane'
                     ' motor')],
                   ['ZP_step', Type.Float, None, 'Zone plate z step'],
                   {'min' : 1, 'max' : 4 }]
 
 energy_def = [['energy', Type.Float, None, 'Beam energy'],
-              ['ZP_Z', Type.Float, None, 'Zone plate central position'],
+              ['ZP_central_pos', Type.Float, None, 'Zone plate central position'],
               ['ZP_step', Type.Float, None, 'Zone plate z step'],
               {'min' : 1}]
 
@@ -28,17 +28,26 @@ class manytomosbase:
 
     def _verifySamples(self, samples, zp_limit_neg, zp_limit_pos):
         pass
-        #for sample in samples:
-            # check the zone_plate value
 
+        for sample in samples:
+            zp_positions = [10, 20, 30]
 
+            for counter, zone_plate in enumerate(sample[ZP_Z]):
+                zp_central_pos = zone_plate[1]
+                zp_step = zone_plate[2]
 
-            #for counter, zone_plate in enumerate(sample[ZP_Z]):
-            #    if zone_plate < zp_limit_neg or zone_plate > zp_limit_pos:
-            #        msg = ("The sample {0} has the zone_plate #{1} out of"
-            #               " range. The accepted range is from %s to"
-            #               " %s um.") % (zp_limit_neg, zp_limit_pos)
-            #        raise ValueError(msg.format(sample[NAME], counter))
+                zp_pos_1 = zp_central_pos + zp_step
+                zp_pos_2 = zp_central_pos
+                zp_pos_3 = zp_central_pos - zp_step
+                zp_positions = [zp_pos_1, zp_pos_2, zp_pos_3] 
+                
+                for zp_position in zp_positions:
+                    if (zp_position < zp_limit_neg or 
+                        zp_position > zp_limit_pos):
+                        msg = ("The sample {0} has the zone_plate #{1} out of"
+                           " range. The accepted range is from %s to"
+                           " %s um.") % (zp_limit_neg, zp_limit_pos)
+                        raise ValueError(msg.format(sample[NAME], counter+1))                
 
     def run(self, samples, filename):
         try:
