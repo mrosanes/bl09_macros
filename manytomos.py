@@ -32,9 +32,9 @@ class manytomosbase:
             for counter, zone_plate in enumerate(sample[ZP_Z]):
                 zp_central_pos = zone_plate[0]
                 zp_step = zone_plate[1]
-                zp_pos_1 = zp_central_pos + zp_step
+                zp_pos_1 = zp_central_pos - zp_step
                 zp_pos_2 = zp_central_pos
-                zp_pos_3 = zp_central_pos - zp_step
+                zp_pos_3 = zp_central_pos + zp_step
                 zp_positions = [zp_pos_1, zp_pos_2, zp_pos_3] 
                 for zp_position in zp_positions:
                     if (zp_position < zp_limit_neg or 
