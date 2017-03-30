@@ -42,7 +42,9 @@ class energyscan(energyscanbase, Macro):
                      ['ff_pos_x', Type.Float, None, ('Position of the X motor'
                          ' for the flat field acquisition')],
                      ['ff_pos_y', Type.Float, None, ('Position of the Y motor'
-                         ' for the flat field acquisition')]],
+                         ' for the flat field acquisition')],
+                     ['n_images', Type.Integer, 1, ('Number of images per '
+                      'energy')]],
             None, 'List of samples'],
         ['out_file', Type.Filename, None, 'Output file name'],
     ]
