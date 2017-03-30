@@ -296,9 +296,9 @@ class M1_mesh(Macro):
                  ["m_trans", Type.Moveable, "m1_z", "Pseudomotor X of mirror"],
                  ["step_pitch", Type.Float, -0.005, "step between scans in pitch"],
                  ["step_trans", Type.Float, 0.08, "step between scans in translation"],
-                 ["start_dscan", Type.Float, -0.13, "start dscan translation position"],
-                 ["end_dscan", Type.Float, 0.1, "end dscan translation position"],
-                 ["intervals", Type.Integer, 80, "number of interval in the dscan"],
+                 ["start_dscan", Type.Float, -0.18, "start dscan translation position"],
+                 ["end_dscan", Type.Float, 0.13, "end dscan translation position"],
+                 ["intervals", Type.Integer, 90, "number of interval in the dscan"],
                  ["int_time", Type.Float, 1, "integration time"],
                  ["repetitions", Type.Integer, 5, "number of scans"]]
 
@@ -316,16 +316,16 @@ class M1_mesh2(Macro):
                  ["m_trans", Type.Moveable, "m1_z", "Pseudomotor X of mirror"],
                  ["step_pitch", Type.Float, -0.005, "step between scans in pitch"],
                  ["step_trans", Type.Float, 0.08, "step between scans in translation"],
-                 ["start_dscan", Type.Float, -0.13, "start dscan translation position"],
-                 ["end_dscan", Type.Float, 0.10, "end dscan translation position"],
-                 ["intervals", Type.Integer, 80, "number of interval in the dscan"],
+                 ["start_dscan", Type.Float, -0.11, "start dscan translation position"],
+                 ["end_dscan", Type.Float, 0.07, "end dscan translation position"],
+                 ["intervals", Type.Integer, 70, "number of interval in the dscan"],
                  ["int_time", Type.Float, 1, "integration time"],
-                 ["repetitions", Type.Integer, 5, "number of scans"]]
+                 ["repetitions", Type.Integer, 4, "number of scans"]]
 
     def run(self, m_pitch, m_trans, step_pitch, step_trans, 
             start_dscan, end_dscan, intervals, int_time, repetitions):
-        self.execMacro('umv', [[m_pitch, '-0.035']])
-        self.execMacro('umv', [[m_trans, '0.481']])
+        self.execMacro('umv', [[m_pitch, '-0.325']])
+        self.execMacro('umv', [[m_trans, '5.179']])
         #self.execMacro('dscan', m_trans, start_dscan, end_dscan, 
          #              intervals, int_time)
         self.M_mesh(m_pitch, m_trans, step_pitch, step_trans, 
@@ -357,17 +357,17 @@ class M2_mesh2(Macro):
     param_def = [["m_pitch", Type.Moveable, "m2_pitch", "Pseudomotor Pitch of mirror"],
                  ["m_trans", Type.Moveable, "m2_x", "Pseudomotor X of mirror"],
                  ["step_pitch", Type.Float, -0.005, "step between scans in pitch"],
-                 ["step_trans", Type.Float, 0.162, "step between scans in translation"],
+                 ["step_trans", Type.Float, 0.160, "step between scans in translation"],
                  ["start_dscan", Type.Float, -0.32, "start dscan translation position"],
                  ["end_dscan", Type.Float, 0.32, "end dscan translation position"],
                  ["intervals", Type.Integer, 60, "number of interval in the dscan"],
                  ["int_time", Type.Float, 0.5, "integration time"],
-                 ["repetitions", Type.Integer, 4, "number of scans"]]
+                 ["repetitions", Type.Integer, 5, "number of scans"]]
 
     def run(self, m_pitch, m_trans, step_pitch, step_trans, 
             start_dscan, end_dscan, intervals, int_time, repetitions):
-        self.execMacro('umv', [[m_pitch, '-0.015']])
-        self.execMacro('umv', [[m_trans, '1.32']])
+        self.execMacro('umv', [[m_pitch, '0.165']])
+        self.execMacro('umv', [[m_trans, '-1.942']])
         #self.execMacro('dscan', m_trans, start_dscan, end_dscan, 
          #              intervals, int_time)
         self.M_mesh(m_pitch, m_trans, step_pitch, step_trans, 
@@ -380,25 +380,25 @@ def pencil_beam(self): #THIS MACRO SHOULD BE USED WITH SHUTTER OUT & E OFFSET=18
     #ch3_emetrange_ch3_attr = PyTango.AttributeProxy("bl09/di/albaem-01/range_ch3")
     #ch3_emetinverted_ch3_attr = PyTango.AttributeProxy("bl09/di/albaem-01/dInversion_ch3")
 
-    self.execMacro('umv jj_d -1.5') #set gap of jj
-    self.execMacro('umv jj_u -0.5')
+    self.execMacro('umv jj_d -4.0') #set gap of jj
+    self.execMacro('umv jj_u -3.0')
     #self.execMacro('umv __DO_NOT_TOUCH_motcalib 68.5') #diag2 motor at Fe
 
     #self.execMacro('umv xs_l 0.0')
     #ch4_emetrange_ch4_attr.write('100 pA') #set range of ALBA em
-    self.execMacro('umv EnergyCff2.25 399')
-    self.execMacro('ascan EnergyCff2.25 400 402.5 250 1')
+    self.execMacro('umv EnergyCff2.25 397.5')
+    self.execMacro('ascan EnergyCff2.25 398.5 401.9 340 1')
     #self.execMacro('umv EnergyCff2.25 768')
     #self.execMacro('ascan EnergyCff2.25 772 788 160 1')
-    self.execMacro('umv EnergyCff2.25 399')
+    self.execMacro('umv EnergyCff2.25 397.5')
     #self.execMacro('ascan EnergyCff2.25 635 650 150 1')
     #self.execMacro('umv EnergyCff2.25 735')
     #self.execMacro('umv EnergyCff2.25 698')
-    for i in range(6):
+    for i in range(14):
         #for j in range(20):
         self.execMacro('umvr jj_offset 0.5')
-        self.execMacro('ascan EnergyCff2.25 400.0 402.5 250 1.0')
-        self.execMacro('umv EnergyCff2.25 399')
+        self.execMacro('ascan EnergyCff2.25 398.5 401.9 340 1')
+        self.execMacro('umv EnergyCff2.25 397.5')
         #self.execMacro('umv EnergyCff2.25 698')
         #self.execMacro('ascan EnergyCff2.25 772 788 160 1.0')
         #self.execMacro('umv EnergyCff2.25 768')
@@ -503,15 +503,15 @@ def pencil_beam(self): #THIS MACRO SHOULD BE USED WITH SHUTTER OUT & E OFFSET=18
 def M1_pencil_beam(self):
     self.execMacro('umv fe_v_offset 0')
     self.execMacro('umv fe_v_gap 2.0') #set gap of fe_v
-    self.execMacro('umv fe_v_offset -4')
-    self.execMacro('dscan m1_z -0.1 0.1 100 1')
-    self.execMacro('dscan m1_z -0.1 0.1 100 1')
-    for i in range(9):
+    self.execMacro('umv fe_v_offset -3')
+    self.execMacro('dscan m1_z -0.16 0.1 100 1')
+    self.execMacro('dscan m1_z -0.16 0.1 100 1')
+    for i in range(8):
         self.execMacro('umvr fe_v_offset 1')
-        self.execMacro('dscan m1_z -0.1 0.1 100 1')
-        self.execMacro('dscan m1_z -0.1 0.1 100 1')
+        self.execMacro('dscan m1_z -0.16 0.1 100 1')
+        self.execMacro('dscan m1_z -0.16 0.1 100 1')
     self.execMacro('umv fe_v_offset 0')
-    self.execMacro('umv fe_v_gap 12')
+    self.execMacro('umv fe_v_gap 13')
 
 @macro()
 def series_specular_pencil_beam(self):
@@ -533,13 +533,13 @@ def series_specular_pencil_beam(self):
 @macro()
 def specular_pencil_beam(self):
         
-    self.execMacro('umv jj_d -3.0') #set gap of jj
-    self.execMacro('umv jj_u -1.0')
+    self.execMacro('umv jj_d -4.0') #set gap of jj
+    self.execMacro('umv jj_u -3.0')
     self.execMacro('dscan xs_v -0.05 0.05 100 1')
     #self.execMacro('dscan xs_v -0.05 0.05 100 1')
-    for i in range(7):
+    for i in range(14):
         #for j in range(40):
-        self.execMacro('umvr jj_offset 1.0')
+        self.execMacro('umvr jj_offset 0.5')
         self.execMacro('dscan xs_v -0.05 0.05 100 1')
         #self.execMacro('dscan xs_v -0.05 0.05 100 1')
                 
@@ -572,19 +572,31 @@ def topup_effect(self):
 @macro()
 def Flux_macro(self):
     #self.execMacro('umv __DO_NOT_TOUCH_motcalib 83')    
-    self.execMacro('umv m2_x 1.989')
+    self.execMacro('umv m2_x 0.041')
     self.execMacro('ascan EnergyCff2.25 300 480 900 1')
-    self.execMacro('umv m2_x 1.959')
+    self.execMacro('umv m2_x 0.01')
     self.execMacro('ascan EnergyCff2.25 480 600 600 1')
-    self.execMacro('umv m2_x 1.934')
+    self.execMacro('umv m2_x -0.013')
     self.execMacro('ascan EnergyCff2.25 600 720 600 1')
-    self.execMacro('umv m2_x 1.913')
+    self.execMacro('umv m2_x -0.035')
+    self.execMacro('ascan EnergyCff2.25 720 850 650 1')
+    self.execMacro('umv EnergyCff2.25 300')
+    self.execMacro('umv EnergyCff2.25 300')
+    self.execMacro('umv EnergyCff2.25 300')
+    self.execMacro('umv __DO_NOT_TOUCH_motcalib 83')
+    self.execMacro('umv m2_x 0.041')
+    self.execMacro('ascan EnergyCff2.25 300 480 900 1')
+    self.execMacro('umv m2_x 0.01')
+    self.execMacro('ascan EnergyCff2.25 480 600 600 1')
+    self.execMacro('umv m2_x -0.013')
+    self.execMacro('ascan EnergyCff2.25 600 720 600 1')
+    self.execMacro('umv m2_x -0.035')
     self.execMacro('ascan EnergyCff2.25 720 850 650 1')
     self.execMacro('umv EnergyCff2.25 520')
     self.execMacro('umv EnergyCff2.25 520')
     self.execMacro('umv EnergyCff2.25 520')
-    #self.execMacro('umv __DO_NOT_TOUCH_motcalib 5')
-    #self.execMacro('umv m2_x 1.989')
+    self.execMacro('umv __DO_NOT_TOUCH_motcalib 5')
+    self.execMacro('umv m2_x 0.01')
     #self.execMacro('dscan EnergyCff2.25 300 480 720')
     #self.execMacro('umv m2_x 1.959')
     #self.execMacro('dscan EnergyCff2.25 480 600 480')
