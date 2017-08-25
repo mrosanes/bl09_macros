@@ -74,10 +74,12 @@ class setRonZeroOnRef(Macro):
         self.motor = motor
         if motor.getName() == 'gr_pitch':
             self.card = 0
+            self.ignore_i3 = False
             self.ignore_i4 = True
         elif motor.getName() == 'm3_pitch':
             self.card = 2
-            self.ignore_i4 = False
+            self.ignore_i3 = True
+            self.ignore_i4 = True
 
     def run(self, motor):
         self.output("Macro: setRonZeroOnRef -- run")
@@ -114,7 +116,9 @@ class setRonZeroOnRef(Macro):
         i3 = self.ik220.RefActive([self.card+1, 0])
         i4 = self.ik220.RefActive([self.card+1, 1])
         self.output("      While RefActive: %s, %s, %s, %s" %(i1, i2, i3, i4))
-        if self.ignore_i4:
+        if self.ignore_i3 and self.ignore_i4:
+            itotal = i1 or i2
+        elif self.ignore_i4:
             itotal = i1 or i2 or i3
         else:
             itotal = i1 or i2 or i3 or i4
