@@ -386,19 +386,19 @@ def pencil_beam(self): #THIS MACRO SHOULD BE USED WITH SHUTTER OUT & E OFFSET=18
 
     #self.execMacro('umv xs_l 0.0')
     #ch4_emetrange_ch4_attr.write('100 pA') #set range of ALBA em
-    self.execMacro('umv EnergyCff2.25 397.5')
-    self.execMacro('ascan EnergyCff2.25 398.5 401.9 340 1')
+    self.execMacro('umv EnergyCff2.25 399.4')
+    self.execMacro('ascan EnergyCff2.25 399.5 403 350 1')
     #self.execMacro('umv EnergyCff2.25 768')
     #self.execMacro('ascan EnergyCff2.25 772 788 160 1')
-    self.execMacro('umv EnergyCff2.25 397.5')
+    self.execMacro('umv EnergyCff2.25 399.4')
     #self.execMacro('ascan EnergyCff2.25 635 650 150 1')
     #self.execMacro('umv EnergyCff2.25 735')
     #self.execMacro('umv EnergyCff2.25 698')
     for i in range(14):
         #for j in range(20):
         self.execMacro('umvr jj_offset 0.5')
-        self.execMacro('ascan EnergyCff2.25 398.5 401.9 340 1')
-        self.execMacro('umv EnergyCff2.25 397.5')
+        self.execMacro('ascan EnergyCff2.25 399.5 403 350 1')
+        self.execMacro('umv EnergyCff2.25 399.4')
         #self.execMacro('umv EnergyCff2.25 698')
         #self.execMacro('ascan EnergyCff2.25 772 788 160 1.0')
         #self.execMacro('umv EnergyCff2.25 768')
@@ -533,11 +533,11 @@ def series_specular_pencil_beam(self):
 @macro()
 def specular_pencil_beam(self):
         
-    self.execMacro('umv jj_d -4.0') #set gap of jj
-    self.execMacro('umv jj_u -3.0')
+    self.execMacro('umv jj_d -4.5') #set gap of jj
+    self.execMacro('umv jj_u -3.5')
     self.execMacro('dscan xs_v -0.05 0.05 100 1')
     #self.execMacro('dscan xs_v -0.05 0.05 100 1')
-    for i in range(14):
+    for i in range(10):
         #for j in range(40):
         self.execMacro('umvr jj_offset 0.5')
         self.execMacro('dscan xs_v -0.05 0.05 100 1')
