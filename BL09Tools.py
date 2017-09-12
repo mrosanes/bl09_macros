@@ -115,11 +115,14 @@ def OpenValves(self):
         except:
             self.warning('Could not open %s' % a )
 
-@macro()
-def OpenFE(self):
-    self.execMacro('mvfe open')
+            
+class OpenFE(Macro):
+    param_def = []
+    
+    def run(self):
+        self.mvfe('open')
 
-
+        
 @macro()
 def CloseValves(self):
     for DevName in ['FE09/VC/PNV-TRU-01',
@@ -140,11 +143,14 @@ def CloseValves(self):
         except:
             self.warning('Could not close %s' % DevName )
 
-@macro()
-def CloseFE(self):
-    self.execMacro('mvfe close')
 
+class CloseFE(Macro):
+    param_def = []
+    
+    def run(self):
+        self.mvfe('close')
 
+        
 class loopscan(Macro):
     param_def = [["motor", Type.Moveable, None, "Motor to scan"],
                  ["nrofpoints", Type.Integer, None, "Number of points for iteration"],
