@@ -386,31 +386,23 @@ def pencil_beam(self): #THIS MACRO SHOULD BE USED WITH SHUTTER OUT & E OFFSET=18
     #ch3_emetrange_ch3_attr = PyTango.AttributeProxy("bl09/di/albaem-01/range_ch3")
     #ch3_emetinverted_ch3_attr = PyTango.AttributeProxy("bl09/di/albaem-01/dInversion_ch3")
 
-    self.execMacro('umv jj_d -4.0') #set gap of jj
-    self.execMacro('umv jj_u -3.0')
+    self.execMacro('umv jj_d -6.0') #set gap of jj
+    self.execMacro('umv jj_u -5.0')
     #self.execMacro('umv __DO_NOT_TOUCH_motcalib 68.5') #diag2 motor at Fe
 
     #self.execMacro('umv xs_l 0.0')
     #ch4_emetrange_ch4_attr.write('100 pA') #set range of ALBA em
-    self.execMacro('umv EnergyCff2.25 399.4')
-    self.execMacro('ascan EnergyCff2.25 399.5 403 350 1')
-    #self.execMacro('umv EnergyCff2.25 768')
-    #self.execMacro('ascan EnergyCff2.25 772 788 160 1')
-    self.execMacro('umv EnergyCff2.25 399.4')
-    #self.execMacro('ascan EnergyCff2.25 635 650 150 1')
-    #self.execMacro('umv EnergyCff2.25 735')
-    #self.execMacro('umv EnergyCff2.25 698')
-    for i in range(14):
+    self.execMacro('umv EnergyCff2.25 396.8')
+    self.execMacro('umv EnergyCff2.25 396.8')
+    self.execMacro('ascan EnergyCff2.25 397 399.5 250 1')
+    self.execMacro('umv EnergyCff2.25 396.8')
+    self.execMacro('umv EnergyCff2.25 396.8')
+    for i in range(12):
         #for j in range(20):
         self.execMacro('umvr jj_offset 0.5')
-        self.execMacro('ascan EnergyCff2.25 399.5 403 350 1')
-        self.execMacro('umv EnergyCff2.25 399.4')
-        #self.execMacro('umv EnergyCff2.25 698')
-        #self.execMacro('ascan EnergyCff2.25 772 788 160 1.0')
-        #self.execMacro('umv EnergyCff2.25 768')
-        #self.execMacro('ascan EnergyCff2.25 740 760 100 1.0')
-        #self.execMacro('umv EnergyCff2.25 735')
-        #self.execMacro('umv EnergyCff2.25 698')
+        self.execMacro('ascan EnergyCff2.25 397 399.5 250 1')
+        self.execMacro('umv EnergyCff2.25 396.8')
+        self.execMacro('umv EnergyCff2.25 396.8')
 
 
     # self.execMacro('umv jj_offset -2.5')
@@ -507,17 +499,17 @@ def pencil_beam(self): #THIS MACRO SHOULD BE USED WITH SHUTTER OUT & E OFFSET=18
 
 @macro()
 def M1_pencil_beam(self):
-    self.execMacro('umv fe_v_offset 0')
-    self.execMacro('umv fe_v_gap 2.0') #set gap of fe_v
-    self.execMacro('umv fe_v_offset -3')
-    self.execMacro('dscan m1_z -0.16 0.1 100 1')
-    self.execMacro('dscan m1_z -0.16 0.1 100 1')
-    for i in range(8):
-        self.execMacro('umvr fe_v_offset 1')
-        self.execMacro('dscan m1_z -0.16 0.1 100 1')
-        self.execMacro('dscan m1_z -0.16 0.1 100 1')
-    self.execMacro('umv fe_v_offset 0')
-    self.execMacro('umv fe_v_gap 13')
+    #self.execMacro('umv fe_v_offset 0.5')
+    self.execMacro('umv fe_v_gap 1.0') #set gap of fe_v
+    self.execMacro('umv fe_v_offset -6.0')
+    self.execMacro('dscan m1_z -0.15 0.17 90 1')
+    #self.execMacro('dscan m1_z -0.12 0.1 100 1')
+    for i in range(10):
+        self.execMacro('umvr fe_v_offset 1.2')
+        self.execMacro('dscan m1_z -0.15 0.17 90 1')
+        #self.execMacro('dscan m1_z -0.16 0.1 100 1')
+    self.execMacro('umv fe_v_offset 0.5')
+    self.execMacro('umv fe_v_gap 12.0')
 
 @macro()
 def series_specular_pencil_beam(self):
@@ -539,14 +531,14 @@ def series_specular_pencil_beam(self):
 @macro()
 def specular_pencil_beam(self):
         
-    self.execMacro('umv jj_d -4.5') #set gap of jj
-    self.execMacro('umv jj_u -3.5')
-    self.execMacro('dscan xs_v -0.05 0.05 100 1')
+    self.execMacro('umv jj_d -7.5') #set gap of jj
+    self.execMacro('umv jj_u -6.5')
+    self.execMacro('dscan xs_v -0.065 0.065 100 1')
     #self.execMacro('dscan xs_v -0.05 0.05 100 1')
-    for i in range(10):
+    for i in range(12):
         #for j in range(40):
         self.execMacro('umvr jj_offset 0.5')
-        self.execMacro('dscan xs_v -0.05 0.05 100 1')
+        self.execMacro('dscan xs_v -0.065 0.065 100 1')
         #self.execMacro('dscan xs_v -0.05 0.05 100 1')
                 
            
@@ -575,34 +567,35 @@ def topup_effect(self):
 #		self.execMacro('ascan EnergyCff2.25 401.5 404.0 250 1.0')
 
 
+# FLUX without CS
 @macro()
 def Flux_macro(self):
-    #self.execMacro('umv __DO_NOT_TOUCH_motcalib 83')    
-    self.execMacro('umv m2_x 0.041')
+    self.execMacro('umv __DO_NOT_TOUCH_motcalib 5')    
+    self.execMacro('umv m2_x -1.377')
     self.execMacro('ascan EnergyCff2.25 300 480 900 1')
-    self.execMacro('umv m2_x 0.01')
+    self.execMacro('umv m2_x -1.393')
     self.execMacro('ascan EnergyCff2.25 480 600 600 1')
-    self.execMacro('umv m2_x -0.013')
+    self.execMacro('umv m2_x -1.407')
     self.execMacro('ascan EnergyCff2.25 600 720 600 1')
-    self.execMacro('umv m2_x -0.035')
+    self.execMacro('umv m2_x -1.429')
     self.execMacro('ascan EnergyCff2.25 720 850 650 1')
     self.execMacro('umv EnergyCff2.25 300')
     self.execMacro('umv EnergyCff2.25 300')
     self.execMacro('umv EnergyCff2.25 300')
-    self.execMacro('umv __DO_NOT_TOUCH_motcalib 83')
-    self.execMacro('umv m2_x 0.041')
+    self.execMacro('umv __DO_NOT_TOUCH_motcalib 85')
+    self.execMacro('umv m2_x -1.377')
     self.execMacro('ascan EnergyCff2.25 300 480 900 1')
-    self.execMacro('umv m2_x 0.01')
+    self.execMacro('umv m2_x -1.393')
     self.execMacro('ascan EnergyCff2.25 480 600 600 1')
-    self.execMacro('umv m2_x -0.013')
+    self.execMacro('umv m2_x -1.407')
     self.execMacro('ascan EnergyCff2.25 600 720 600 1')
-    self.execMacro('umv m2_x -0.035')
+    self.execMacro('umv m2_x -1.429')
     self.execMacro('ascan EnergyCff2.25 720 850 650 1')
     self.execMacro('umv EnergyCff2.25 520')
     self.execMacro('umv EnergyCff2.25 520')
     self.execMacro('umv EnergyCff2.25 520')
     self.execMacro('umv __DO_NOT_TOUCH_motcalib 5')
-    self.execMacro('umv m2_x 0.01')
+    #self.execMacro('umv m2_x 0.01')
     #self.execMacro('dscan EnergyCff2.25 300 480 720')
     #self.execMacro('umv m2_x 1.959')
     #self.execMacro('dscan EnergyCff2.25 480 600 480')
@@ -610,3 +603,25 @@ def Flux_macro(self):
     #self.execMacro('dscan EnergyCff2.25 600 720 480')
     #self.execMacro('umv m2_x 1.913')
     #self.execMacro('dscan EnergyCff2.25 720 850 520')
+    #self.execMacro('umv __DO_NOT_TOUCH_motcalib 5')
+    self.execMacro('CloseTXMValve')
+    self.execMacro('umv jj_d -9.5')
+    self.execMacro('umv jj_u 2.5')
+   
+
+# FLUX CS
+@macro()
+def Flux_macroCS(self):
+    self.execMacro('umv __DO_NOT_TOUCH_motcalib 5')    
+    self.execMacro('umv m2_x -1.377')
+    self.execMacro('ascan EnergyCff2.25 300 480 900 1')
+    self.execMacro('umv m2_x -1.393')
+    self.execMacro('ascan EnergyCff2.25 480 600 600 1')
+    self.execMacro('umv m2_x -1.407')
+    self.execMacro('ascan EnergyCff2.25 600 720 600 1')
+    self.execMacro('umv m2_x -1.429')
+    self.execMacro('ascan EnergyCff2.25 720 850 650 1')
+    self.execMacro('umv EnergyCff2.25 300')
+    self.execMacro('umv EnergyCff2.25 300')
+    self.execMacro('umv EnergyCff2.25 300')
+    
